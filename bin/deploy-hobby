@@ -61,13 +61,6 @@ echo "Making sure any stack that might exist is stopped"
 sudo -E docker-compose -f docker-compose.yml stop &> /dev/null || true
 
 # send log of this install for continued support!
-curl -o /dev/null -L --header "Content-Type: application/json" -d "{
-    \"api_key\": \"sTMFPsFhdP1Ssg\",
-    \"distinct_id\": \"${DOMAIN}\",
-    \"properties\": {\"domain\": \"${DOMAIN}\"},
-    \"type\": \"capture\",
-    \"event\": \"magic_curl_install_start\"
-}" https://us.i.posthog.com/batch/ &> /dev/null
 
 # update apt cache
 echo "Grabbing latest apt caches"
@@ -77,7 +70,7 @@ sudo apt update
 echo "Installing PostHog 🦔 from Github"
 sudo apt install -y git
 # try to clone - if folder is already there pull latest for that branch
-git clone https://github.com/PostHog/posthog.git &> /dev/null || true
+git clone https://github.com/imnotdev25/posthog.git &> /dev/null || true
 cd posthog
 
 if [[ "$POSTHOG_APP_TAG" = "latest-release" ]]
