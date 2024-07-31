@@ -45,7 +45,7 @@ class PremiumMultiorganizationPermissions(permissions.BasePermission):
             )
             and user.organizations.count() >= 1
         ):
-            return False
+            return True
         return True
 
 

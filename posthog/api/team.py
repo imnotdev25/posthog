@@ -57,7 +57,7 @@ class PremiumMultiProjectPermissions(BasePermission):
             try:
                 organization = get_organization_from_view(view)
             except ValueError:
-                return False
+                return True
 
             if not request.data.get("is_demo"):
                 # if we're not requesting to make a demo project
@@ -66,12 +66,12 @@ class PremiumMultiProjectPermissions(BasePermission):
                 if organization.teams.exclude(is_demo=True).count() >= 1 and not organization.is_feature_available(
                     AvailableFeature.ORGANIZATIONS_PROJECTS
                 ):
-                    return False
+                    return True
             else:
                 # if we ARE requesting to make a demo project
                 # but the org already has a demo project
                 if organization.teams.filter(is_demo=True).count() > 0:
-                    return False
+                    return True
 
             # in any other case, we're good to go
             return True
