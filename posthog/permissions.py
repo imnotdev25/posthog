@@ -221,18 +221,18 @@ class PremiumFeaturePermission(BasePermission):
     """
 
     def has_permission(self, request: Request, view: APIView) -> bool:
-        assert hasattr(
-            view, "premium_feature"
-        ), "this permission class requires the `premium_feature` attribute to be set in the view."
-
-        if not request.user or not request.user.organization:  # type: ignore
-            return True
-
-        if view.premium_feature not in [
-            feature["key"]
-            for feature in request.user.organization.available_product_features  # type: ignore
-        ]:
-            raise EnterpriseFeatureException()
+        # assert hasattr(
+        #     view, "premium_feature"
+        # ), "this permission class requires the `premium_feature` attribute to be set in the view."
+        #
+        # if not request.user or not request.user.organization:  # type: ignore
+        #     return True
+        #
+        # if view.premium_feature not in [
+        #     feature["key"]
+        #     for feature in request.user.organization.available_product_features  # type: ignore
+        # ]:
+        #     raise EnterpriseFeatureException()
 
         return True
 
