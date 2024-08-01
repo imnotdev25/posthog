@@ -143,7 +143,7 @@ RUN apt-get update && \
 FROM unit:python3.11
 WORKDIR /code
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 # Install OS runtime dependencies.
 # Note: please add in this stage runtime dependences only!

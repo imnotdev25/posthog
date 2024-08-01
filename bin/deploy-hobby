@@ -6,7 +6,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Automatically restart without asking.
 # this gets around needrestart command halting for user input
 export RESTART_MODE=l
-export POSTHOG_APP_TAG="${POSTHOG_APP_TAG:-latest}"
+export POSTHOG_APP_TAG=latest
 export SENTRY_DSN="${SENTRY_DSN:-'https://public@sentry.example.com/1'}"
 
 POSTHOG_SECRET=$(head -c 28 /dev/urandom | sha224sum -b | head -c 56)
@@ -21,25 +21,10 @@ echo "Power user or aspiring power user?"
 echo "Check out our docs on deploying PostHog! https://posthog.com/docs/self-host/deploy/hobby"
 echo ""
 
+
 if ! [ -z "$1" ]
 then
-export POSTHOG_APP_TAG=$1
-else
-echo "What version of PostHog would you like to install? (We default to 'latest')"
-echo "You can check out available versions here: https://hub.docker.com/r/posthog/posthog/tags"
-read -r POSTHOG_APP_TAG_READ
-if [ -z "$POSTHOG_APP_TAG_READ" ]
-then
-    echo "Using default and installing $POSTHOG_APP_TAG"
-else
-    export POSTHOG_APP_TAG=$POSTHOG_APP_TAG_READ
-    echo "Using provided tag: $POSTHOG_APP_TAG"
-fi
-fi
-echo ""
-if ! [ -z "$2" ]
-then
-export DOMAIN=$2
+export DOMAIN=$1
 else
 echo "Let's get the exact domain PostHog will be installed on"
 echo "Make sure that you have a Host A DNS record pointing to this instance!"
@@ -71,30 +56,6 @@ echo "Installing PostHog 🦔 from Github"
 sudo apt install -y git
 # try to clone - if folder is already there pull latest for that branch
 git clone https://github.com/imnotdev25/posthog.git &> /dev/null || true
-cd posthog
-
-if [[ "$POSTHOG_APP_TAG" = "latest-release" ]]
-then
-    git fetch --tags
-    latestReleaseTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-    echo "Checking out latest PostHog release: $latestReleaseTag"
-    git checkout $latestReleaseTag
-elif [[ "$POSTHOG_APP_TAG" = "latest" ]]
-then
-    echo "Pulling latest from current branch: $(git branch --show-current)"
-    git pull
-elif [[ "$POSTHOG_APP_TAG" =~ ^[0-9a-f]{40}$ ]]
-then
-    echo "Checking out specific commit hash: $POSTHOG_APP_TAG"
-    git checkout $POSTHOG_APP_TAG
-else
-    releaseTag="${POSTHOG_APP_TAG/release-/""}"
-    git fetch --tags
-    echo "Checking out PostHog release: $releaseTag"
-    git checkout $releaseTag
-fi
-
-cd ..
 
 if [ -n "$3" ]
 then
@@ -103,7 +64,7 @@ fi
 
 if [ "$REGISTRY_URL" == "" ]
 then
-export REGISTRY_URL="posthog/posthog"
+export REGISTRY_URL="imnotdev25/posthog"
 fi
 
 # rewrite caddyfile
@@ -210,14 +171,6 @@ bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost/_health)
 echo "⌛️ PostHog looks up!"
 echo ""
 echo "🎉🎉🎉  Done! 🎉🎉🎉"
-# send log of this install for continued support!
-curl -o /dev/null -L --header "Content-Type: application/json" -d "{
-    \"api_key\": \"sTMFPsFhdP1Ssg\",
-    \"distinct_id\": \"${DOMAIN}\",
-    \"properties\": {\"domain\": \"${DOMAIN}\"},
-    \"type\": \"capture\",
-    \"event\": \"magic_curl_install_complete\"
-}" https://us.i.posthog.com/batch/ &> /dev/null
 echo ""
 echo "To stop the stack run 'docker-compose stop'"
 echo "To start the stack again run 'docker-compose start'"
